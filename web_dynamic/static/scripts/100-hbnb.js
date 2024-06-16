@@ -4,7 +4,7 @@ $(document).ready(function () {
   const cities = {};
 
   // Handle amenities checkboxes
-  $('input[type="checkbox"]').click(function () {
+  $('.amenities input[type="checkbox"]').click(function () {
     const amenityId = $(this).attr('data-id');
     const amenityName = $(this).attr('data-name');
     if ($(this).prop('checked') === true) {
@@ -24,10 +24,10 @@ $(document).ready(function () {
   });
 
   // Handle states and cities checkboxes
-  $('input[type="checkbox"]').click(function () {
+  $('.locations input[type="checkbox"]').click(function () {
     const id = $(this).attr('data-id');
     const name = $(this).attr('data-name');
-    if ($(this).closest('li').parent().prop('tagName') === 'UL') {
+    if ($(this).closest('.state').length > 0) {
       // State checkbox
       if ($(this).prop('checked') === true) {
         states[id] = name;
@@ -47,6 +47,15 @@ $(document).ready(function () {
       } else if ($(this).prop('checked') === false) {
         delete cities[id];
       }
+      const cityList = Object.values(cities).join(', ');
+      if (cityList.length > 30) {
+        $('.locations h4').text(cityList.slice(0, 29) + '...');
+      } else {
+        $('.locations h4').text(cityList);
+      }
+    }
+    if (Object.keys(states).length === 0 && Object.keys(cities).length === 0) {
+      $('.locations h4').html('&nbsp;');
     }
   });
 
