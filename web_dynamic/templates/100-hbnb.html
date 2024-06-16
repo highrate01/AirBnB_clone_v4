@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="../static/scripts/3-hbnb.js?{{ cache_id }}"></script>
+    <script src="../static/scripts/100-hbnb.js?{{ cache_id }}"></script>
     <link rel="stylesheet" type="text/css" href="../static/styles/4-common.css?{{ cache_id }}">
     <link rel="stylesheet" type="text/css" href="../static/styles/3-header.css?{{ cache_id }}">
     <link rel="stylesheet" type="text/css" href="../static/styles/3-footer.css?{{ cache_id }}">
@@ -26,10 +26,17 @@
 	    <ul>
 	      {% for state in states %}
 	      <li>
-		<h2>{{ state[0].name }}:</h2>
+		      <h2>
+			<input type="checkbox" data-id="{{ state[0].id }}" data-name="{{ state[0].name }}" style="margin-left: 10px;">
+			{{ state[0].name }}:
+		      </h2>
 		<ul>
-		  {% for city in state[1] %}
-		  <li>{{ city.name }}</li>
+			{% for city in state[1] %}
+		  <li>
+			   <input type="checkbox" data-id="{{ city.id }}" data-name="{{ city.name }}" style="margin-left: 10px;">
+			   {{ city.name }}
+		  </li>
+
 		  {% endfor %}
 		</ul>
 	      </li>
@@ -44,7 +51,10 @@
 	    <ul>
 	      {% for amenity in amenities %}
 	      <input type="checkbox" data-id="{{ amenity.id }}" data-name="{{ amenity.name }}">
-	      <li>{{ amenity.name }}</li>
+	      <li>
+		      <input type="checkbox" data-id="{{ amenity.id }}" data-name="{{ amenity.name }}">
+		      {{ amenity.name }}
+	      </li>
 	      {% endfor %}
 	    </ul>
 	  </div>
