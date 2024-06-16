@@ -1,66 +1,6 @@
-$(document).ready(function () {
-  const amenities = {};
-  const states = {};
-  const cities = {};
-
-  // Handle amenities checkboxes
-  $('.amenities input[type="checkbox"]').click(function () {
-    const amenityId = $(this).attr('data-id');
-    const amenityName = $(this).attr('data-name');
-    if ($(this).prop('checked') === true) {
-      amenities[amenityId] = amenityName;
-    } else if ($(this).prop('checked') === false) {
-      delete amenities[amenityId];
-    }
-    const amenityList = Object.values(amenities).join(', ');
-    if (amenityList.length > 30) {
-      $('.amenities h4').text(amenityList.slice(0, 29) + '...');
-    } else {
-      $('.amenities h4').text(amenityList);
-    }
-    if (Object.keys(amenities).length === 0) {
-      $('.amenities h4').html('&nbsp;');
-    }
-  });
-
-  // Handle states and cities checkboxes
-  $('.locations input[type="checkbox"]').click(function () {
-    const id = $(this).attr('data-id');
-    const name = $(this).attr('data-name');
-    if ($(this).closest('.state').length > 0) {
-      // State checkbox
-      if ($(this).prop('checked') === true) {
-        states[id] = name;
-      } else if ($(this).prop('checked') === false) {
-        delete states[id];
-      }
-      const stateList = Object.values(states).join(', ');
-      if (stateList.length > 30) {
-        $('.locations h4').text(stateList.slice(0, 29) + '...');
-      } else {
-        $('.locations h4').text(stateList);
-      }
-    } else {
-      // City checkbox
-      if ($(this).prop('checked') === true) {
-        cities[id] = name;
-      } else if ($(this).prop('checked') === false) {
-        delete cities[id];
-      }
-      const cityList = Object.values(cities).join(', ');
-      if (cityList.length > 30) {
-        $('.locations h4').text(cityList.slice(0, 29) + '...');
-      } else {
-        $('.locations h4').text(cityList);
-      }
-    }
-    if (Object.keys(states).length === 0 && Object.keys(cities).length === 0) {
-      $('.locations h4').html('&nbsp;');
-    }
-  });
-
-  // Check API status
-  $.get('http://0.0.0.0:5001/api/v1/status/', function (data) {
+window.addEventListener('load', function () {
+  // task 3
+  $.ajax('http://0.0.0.0:5001/api/v1/status').done(function (data) {
     if (data.status === 'OK') {
       $('#api_status').addClass('available');
     } else {
@@ -68,41 +8,106 @@ $(document).ready(function () {
     }
   });
 
-  // Search for places
-  $('button').click(function () {
+  // task 2
+  const amenityIds = {};
+  $('.amenities input[type=checkbox]').click(function () {
+    if ($(this).prop('checked')) {
+      amenityIds[$(this).attr('data-id')] = $(this).attr('data-name');
+    } else if (!$(this).prop('checked')) {
+      delete amenityIds[$(this).attr('data-id')];
+    }
+    if (Object.keys(amenityIds).length === 0) {
+      $('div.amenities h4').html('&nbsp;');
+    } else {
+      $('div.amenities h4').text(Object.values(amenityIds).join(', '));
+    }
+  });
+
+  const stateIds = {};
+  const cityIds = {};
+  // task 4
+  $('.filters button').click(function () {
     $.ajax({
       type: 'POST',
       url: 'http://0.0.0.0:5001/api/v1/places_search/',
       contentType: 'application/json',
       data: JSON.stringify({
-        amenities: Object.keys(amenities),
-        states: Object.keys(states),
-        cities: Object.keys(cities)
-      }),
-      success: function (data) {
-        $('.places').empty();
-        if (data.length === 0) {
-          $('.places').append('<p>No places found</p>');
-        } else {
-          data.forEach(function (place) {
-            const article = `
-              <article>
-                <div class="title_box">
-                  <h2>${place.name}</h2>
-                  <div class="price_by_night">${place.price_by_night}</div>
-                </div>
-                <div class="information">
-                  <div class="max_guest">${place.max_guest} Guest${place.max_guest !== 1 ? 's' : ''}</div>
-                  <div class="number_rooms">${place.number_rooms} Bedroom${place.number_rooms !== 1 ? 's' : ''}</div>
-                  <div class="number_bathrooms">${place.number_bathrooms} Bathroom${place.number_bathrooms !== 1 ? 's' : ''}</div>
-                </div>
-                <div class="description">${place.description}</div>
-              </article>
-            `;
-            $('.places').append(article);
-          });
-        }
+        amenities: Object.keys(amenityIds),
+        states: Object.keys(stateIds),
+        cities: Object.keys(cityIds)
+      })
+    }).done(function (data) {
+      $('section.places').empty();
+      $('section.places').append('<h1>Places</h1>');
+      for (const place of data) {
+        const template = `<article>
+        <div class="title">
+        <h2>${place.name}</h2>
+        <div class="price_by_night">
+      $${place.price_by_night}
+      </div>
+        </div>
+        <div class="information">
+        <div class="max_guest">
+        <i class="fa fa-users fa-3x" aria-hidden="true"></i>
+
+        <br />
+
+      ${place.max_guest} Guests
+
+      </div>
+        <div class="number_rooms">
+        <i class="fa fa-bed fa-3x" aria-hidden="true"></i>
+
+        <br />
+
+      ${place.number_rooms} Bedrooms
+      </div>
+        <div class="number_bathrooms">
+        <i class="fa fa-bath fa-3x" aria-hidden="true"></i>
+
+        <br />
+
+      ${place.number_bathrooms} Bathroom
+
+      </div>
+        </div>
+        <div class="description">
+
+      ${place.description}
+
+      </div>
+
+      </article> <!-- End 1 PLACE Article -->`;
+        $('section.places').append(template);
       }
     });
+  });
+
+  // task 6
+  $('.stateCheckBox').click(function () {
+    if ($(this).prop('checked')) {
+      stateIds[$(this).attr('data-id')] = $(this).attr('data-name');
+    } else if (!$(this).prop('checked')) {
+      delete stateIds[$(this).attr('data-id')];
+    }
+    if (Object.keys(stateIds).length === 0 && Object.keys(cityIds).length === 0) {
+      $('.locations h4').html('&nbsp;');
+    } else {
+      $('.locations h4').text(Object.values(stateIds).concat(Object.values(cityIds)).join(', '));
+    }
+  });
+
+  $('.cityCheckBox').click(function () {
+    if ($(this).prop('checked')) {
+      cityIds[$(this).attr('data-id')] = $(this).attr('data-name');
+    } else if (!$(this).prop('checked')) {
+      delete cityIds[$(this).attr('data-id')];
+    }
+    if (Object.keys(stateIds).length === 0 && Object.keys(cityIds).length === 0) {
+      $('.locations h4').html('&nbsp;');
+    } else {
+      $('.locations h4').text(Object.values(cityIds).concat(Object.values(stateIds)).join(', '));
+    }
   });
 });
